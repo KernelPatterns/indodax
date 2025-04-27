@@ -107,17 +107,15 @@ jekyll_build() {
   sed -i "1s|^|id: ${SITEID}\n|" ${RUNNER_TEMP}/_config.yml
 
   echo 'ID='${SITEID} >> ${GITHUB_ENV}
-
-  echo -e "\n$hr\nCONFIG\n$hr"
   cat ${RUNNER_TEMP}/_config.yml
 
   if [[ "${TARGET_REPOSITORY}" != *"eq19/"* ]]; then
 
     echo -e "\nTest Module Structure:"
-    echo "1. ${GITHUB_REPOSITORY_OWNER}/maps → $(next_repo "${GITHUB_REPOSITORY_OWNER}/maps")"
-    echo "2. ${GITHUB_REPOSITORY_OWNER}/grammar → $(next_repo "${GITHUB_REPOSITORY_OWNER}/grammar")"
-    NEXT_REPOSITORY=$(next_repo "${GITHUB_REPOSITORY_OWNER}/$(yq -r '.track.pinned | .[-1]' ${RUNNER_TEMP}/_config.yml)")
-    echo "3. ${GITHUB_REPOSITORY_OWNER}/$(yq -r '.track.pinned | .[-1]' ${RUNNER_TEMP}/_config.yml) → ${NEXT_REPOSITORY}"
+    echo "1. ${OWNER}/maps → $(next_repo "${OWNER}/maps")"
+    echo "2. ${OWNER}/grammar → $(next_repo "${OWNER}/grammar")"
+    NEXT_REPOSITORY=$(next_repo "${OWNER}/$(yq -r '.track.pinned | .[-1]' ${RUNNER_TEMP}/_config.yml)")
+    echo "3. ${OWNER}/$(yq -r '.track.pinned | .[-1]' ${RUNNER_TEMP}/_config.yml) → ${NEXT_REPOSITORY}"
     echo "4. ${NEXT_REPOSITORY} → $(next_repo "${NEXT_REPOSITORY}")"
 
     NEXT_REPOSITORY=$(next_repo "${TARGET_REPOSITORY}")
@@ -125,9 +123,6 @@ jekyll_build() {
 
   fi
    
-  echo -e "\n$hr\nSET TOKEN\n$hr"
-  sync.sh ${REPO} ${TARGET_REPOSITORY} ${GH_TOKEN}
-  
   # Fetch SHA, encode new content, and update in one step
   gh api --method PUT /repos/${TARGET_REPOSITORY}/contents/.github/workflows/main.yml \
     -f sha="$(gh api /repos/${TARGET_REPOSITORY}/contents/.github/workflows/main.yml --jq '.sha')" \
